@@ -9,24 +9,21 @@
 <body>
   <div class="container">
     <h1>Собери пазл!</h1>
-    <div id="puzzle-selector">
-      <button onclick="loadPuzzle(1)">Жмурки</button>
-      <button onclick="loadPuzzle(2)">Дом жмурки</button>
-      <button onclick="loadPuzzle(3)">Громозека</button>
+    <div class="puzzle-buttons">
+      <button onclick="loadPuzzle(0)">Жмурки</button>
+      <button onclick="loadPuzzle(1)">Пазл 2</button>
+      <button onclick="loadPuzzle(2)">Пазл 3</button>
     </div>
 
-    <div class="game-wrapper">
-      <div id="pieces"></div>
-      <div id="board"></div>
-    </div>
+    <div id="board"></div>
+    <div id="pieces"></div>
 
-    <div id="buttons">
+    <div class="buttons">
       <button onclick="resetPuzzle()">Сбросить</button>
-    </div>
-
-    <div id="code-block" class="hidden">
-      <p><strong>Код:</strong> <span id="code">NN2025-TOUR</span></p>
-      <button onclick="copyCode()">Скопировать код</button>
+      <div id="code-block" class="hidden">
+        <p><strong>Код:</strong> <span id="puzzle-code">NN2025-TOUR</span></p>
+        <button onclick="copyCode()">Скопировать код</button>
+      </div>
     </div>
   </div>
 

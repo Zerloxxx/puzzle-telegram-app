@@ -1,17 +1,17 @@
-const pieces = document.getElementById('pieces');
-const board = document.getElementById('board');
-const codeBlock = document.getElementById('code-block');
-const code = document.getElementById('code');
-
-let puzzleImage = 'secret1.jpg';
-let selectedPuzzle = 1;
-let total = 5;
+const puzzles = ["secret1.jpg", "secret2.jpg", "secret3.jpg"];
+let currentPuzzle = 0;
+let pieceSize = 60;
+let boardSize = 5;
+let totalPieces = boardSize * boardSize;
+let correctCount = 0;
 
 function createBoard() {
-  board.innerHTML = '';
-  for (let i = 0; i < total * total; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  for (let i = 0; i < totalPieces; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+    cell.dataset.index = i;
     board.appendChild(cell);
   }
 }
@@ -21,98 +21,94 @@ function shuffle(array) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
-  return array;
 }
 
-function createPieces() {
-  pieces.innerHTML = '';
-  let indexes = shuffle([...Array(total * total).keys()]);
-
-  indexes.forEach(index => {
-    const x = index % total;
-    const y = Math.floor(index / total);
-    const piece = document.createElement('img');
-    piece.className = 'piece';
-    piece.draggable = true;
-    piece.style.objectFit = 'cover';
-    piece.style.objectPosition = `-${x * 60}px -${y * 60}px`;
-    piece.src = puzzleImage;
-    piece.dataset.index = index;
-    piece.addEventListener('dragstart', dragStart);
-    pieces.appendChild(piece);
-  });
-}
-
-function resetPuzzle() {
-  createBoard();
-  createPieces();
-  codeBlock.classList.add('hidden');
-}
-
-function dragStart(e) {
-  e.dataTransfer.setData('index', e.target.dataset.index);
-  e.dataTransfer.setData('src', e.target.src);
-  e.dataTransfer.setData('pos', e.target.style.objectPosition);
-}
-
-function drop(e) {
-  e.preventDefault();
-  const index = e.dataTransfer.getData('index');
-  const src = e.dataTransfer.getData('src');
-  const pos = e.dataTransfer.getData('pos');
-
-  if (e.target.className === 'cell' && !e.target.hasChildNodes()) {
-    const img = document.createElement('img');
-    img.className = 'piece';
-    img.src = src;
-    img.style.objectPosition = pos;
-    img.draggable = true;
-    img.dataset.index = index;
-    img.addEventListener('dragstart', dragStart);
-    e.target.appendChild(img);
-  }
-
-  checkPuzzle();
-}
-
-function allowDrop(e) {
-  e.preventDefault();
-}
-
-function checkPuzzle() {
-  const cells = board.querySelectorAll('.cell');
-  let correct = true;
-
-  for (let i = 0; i < cells.length; i++) {
-    const img = cells[i].querySelector('img');
-    if (!img || parseInt(img.dataset.index) !== i) {
-      correct = false;
-      break;
-    }
-  }
-
-  if (correct) {
-    codeBlock.classList.remove('hidden');
-
-    if (window.Telegram?.WebApp?.sendData) {
-      Telegram.WebApp.sendData('NN2025-TOUR');
-    }
-  }
-}
-
-function loadPuzzle(n) {
-  selectedPuzzle = n;
-  puzzleImage = `secret${n}.jpg`;
+function loadPuzzle(index) {
+  currentPuzzle = index;
   resetPuzzle();
 }
 
-board.addEventListener('dragover', allowDrop);
-board.addEventListener('drop', drop);
+function resetPuzzle() {
+  correctCount = 0;
+  document.getElementById("code-block").classList.add("hidden");
+  createBoard();
 
-window.addEventListener('load', () => {
-  loadPuzzle(1);
-});
+  const pieces = document.getElementById("pieces");
+  pieces.innerHTML = "";
+
+  const positions = Array.from({ length: totalPieces }, (_, i) => i);
+  shuffle(positions);
+
+  for (let i = 0; i < totalPieces; i++) {
+    const piece = document.createElement("img");
+    piece.src = puzzles[currentPuzzle];
+    piece.classList.add("piece");
+    piece.draggable = true;
+    piece.dataset.index = i;
+
+    const x = (i % boardSize) * pieceSize;
+    const y = Math.floor(i / boardSize) * pieceSize;
+
+    piece.style.objectPosition = `-${x}px -${y}px`;
+    piece.style.objectFit = "none";
+    piece.style.width = `${pieceSize}px`;
+    piece.style.height = `${pieceSize}px`;
+
+    piece.addEventListener("dragstart", dragStart);
+    pieces.appendChild(piece);
+  }
+
+  document.querySelectorAll(".cell").forEach((cell) => {
+    cell.addEventListener("dragover", dragOver);
+    cell.addEventListener("drop", drop);
+  });
+}
+
+function dragStart(event) {
+  event.dataTransfer.setData("index", event.target.dataset.index);
+  event.dataTransfer.setData("src", event.target.src);
+  event.dataTransfer.setData("pos", event.target.style.objectPosition);
+}
+
+function dragOver(event) {
+  event.preventDefault();
+}
+
+function drop(event) {
+  event.preventDefault();
+  const droppedIndex = parseInt(event.currentTarget.dataset.index);
+  const pieceIndex = parseInt(event.dataTransfer.getData("index"));
+  const src = event.dataTransfer.getData("src");
+  const pos = event.dataTransfer.getData("pos");
+
+  if (event.currentTarget.children.length > 0) return;
+
+  const piece = document.createElement("img");
+  piece.src = src;
+  piece.classList.add("piece");
+  piece.style.objectPosition = pos;
+  piece.style.objectFit = "none";
+  piece.style.width = `${pieceSize}px`;
+  piece.style.height = `${pieceSize}px`;
+
+  event.currentTarget.appendChild(piece);
+
+  if (droppedIndex === pieceIndex) {
+    correctCount++;
+  }
+
+  if (correctCount === totalPieces) {
+    document.getElementById("code-block").classList.remove("hidden");
+  }
+}
 
 function copyCode() {
-  navigator.clipboard.writeText(code.textContent);
+  const code = document.getElementById("puzzle-code").innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    alert("Код скопирован!");
+  });
 }
+
+window.onload = () => {
+  loadPuzzle(0);
+};

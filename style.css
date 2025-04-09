@@ -1,73 +1,68 @@
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f0f8ff;
-  color: #1e1e2f;
-  display: flex;
-  justify-content: center;
+  font-family: "Segoe UI", sans-serif;
+  background: #f2f8ff;
+  color: #1a237e;
 }
 
 .container {
-  text-align: center;
-  width: 100%;
   max-width: 420px;
+  margin: 0 auto;
   padding: 20px;
+  text-align: center;
 }
 
 h1 {
-  color: #401c82;
+  color: #1a237e;
+}
+
+.puzzle-buttons {
+  margin-bottom: 10px;
 }
 
 button {
-  background-color: #318ce7;
-  color: white;
-  border: none;
-  border-radius: 10px;
+  margin: 5px;
   padding: 8px 16px;
-  margin: 4px;
-  font-size: 14px;
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
 }
 
 button:hover {
-  background-color: #1f6bc1;
+  background-color: #1976d2;
 }
 
-#puzzle-selector {
-  margin-bottom: 12px;
-}
-
-.game-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#pieces,
 #board {
+  margin: 0 auto 20px;
+  width: 300px;
+  height: 300px;
   display: grid;
-  grid-template-columns: repeat(5, 60px);
-  grid-template-rows: repeat(5, 60px);
-  gap: 4px;
-  margin: 8px 0;
-  background-color: #e6f0ff;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 2px;
+  background: #e3f2fd;
+  border: 2px dashed #90caf9;
+}
+
+.cell {
+  width: 60px;
+  height: 60px;
+  border: 1px dashed #64b5f6;
+}
+
+#pieces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
 }
 
 .piece {
   width: 60px;
   height: 60px;
   cursor: grab;
-}
-
-.cell {
-  width: 60px;
-  height: 60px;
-  background-color: #cfe7ff;
-  border: 1px dashed #318ce7;
   border-radius: 4px;
 }
 
@@ -75,6 +70,3 @@ button:hover {
   display: none;
 }
 
-#code-block {
-  margin-top: 12px;
-}
