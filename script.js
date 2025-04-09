@@ -32,6 +32,7 @@ function loadPuzzle(index) {
 function resetPuzzle() {
   correctCount = 0;
   document.getElementById("code-block").classList.add("hidden");
+  document.getElementById("description").classList.add("hidden");
   createBoard();
   const piecesContainer = document.getElementById("pieces");
   piecesContainer.innerHTML = "";
@@ -39,13 +40,10 @@ function resetPuzzle() {
   const img = new Image();
   img.src = puzzles[currentPuzzle];
   img.onload = () => {
-    // Масштабируем под поле
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = pieceSize * boardSize;  // 300
-    canvas.height = pieceSize * boardSize; // 300
-
-    // Вписываем изображение в поле
+    canvas.width = pieceSize * boardSize;
+    canvas.height = pieceSize * boardSize;
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     const pieceWidth = canvas.width / boardSize;
@@ -126,6 +124,16 @@ function drop(event) {
 
   if (correctCount === totalPieces) {
     document.getElementById("code-block").classList.remove("hidden");
+
+    const descriptions = [
+      "Жмурки — одно из самых атмосферных мест с захватывающим видом на Волгу.",
+      "Пазл 2 — это историческая улица с купеческими домами и уютными дворами.",
+      "Пазл 3 — знаменитая смотровая площадка с панорамой на Нижний Новгород."
+    ];
+    document.getElementById("description").classList.remove("hidden");
+    document.getElementById("place-description").innerText = descriptions[currentPuzzle];
+
+    showFireworks();
   }
 }
 
@@ -134,6 +142,41 @@ function copyCode() {
   navigator.clipboard.writeText(code).then(() => {
     alert("Код скопирован!");
   });
+}
+
+function showFireworks() {
+  const container = document.createElement("div");
+  container.classList.add("fireworks");
+  document.body.appendChild(container);
+
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/fireworks-js@2.1.0/dist/fireworks.js";
+  script.onload = () => {
+    const fireworks = new Fireworks(container, {
+      autoresize: true,
+      opacity: 0.8,
+      acceleration: 1.05,
+      friction: 0.97,
+      gravity: 1.5,
+      particles: 90,
+      traceLength: 3,
+      traceSpeed: 10,
+      explosion: 5,
+      intensity: 30,
+      flickering: 50,
+      lineStyle: 'round',
+      hue: { min: 0, max: 360 },
+      delay: { min: 15, max: 30 },
+      rocketsPoint: { min: 0, max: 100 },
+      lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } },
+    });
+    fireworks.start();
+    setTimeout(() => {
+      fireworks.stop();
+      container.remove();
+    }, 4000);
+  };
+  document.body.appendChild(script);
 }
 
 window.onload = () => {
