@@ -2,36 +2,34 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Собери пазл!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Пазл-игра</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <h1>Собери пазл!</h1>
 
-    <div id="puzzle-switcher">
-      <button onclick="loadPuzzle(0)">Жмурки</button>
-      <button onclick="loadPuzzle(1)">Дом жмурки</button>
-      <button onclick="loadPuzzle(2)">Громозека</button>
+    <div class="puzzle-switcher">
+      <button class="puzzle-btn" data-id="1">Жмурки</button>
+      <button class="puzzle-btn" data-id="2">Пазл 2</button>
+      <button class="puzzle-btn" data-id="3">Пазл 3</button>
     </div>
 
     <div class="game">
-      <div id="game-board" class="board"></div>
-      <div id="pieces-container" class="pieces"></div>
+      <div id="puzzle-board" class="board"></div>
+      <div id="right-panel">
+        <div id="pieces-container" class="pieces"></div>
+        <div id="description-block" class="hidden"></div>
+      </div>
     </div>
 
-    <button id="reset-button">Сбросить</button>
-
-    <div id="code-container" class="hidden">
-      <p><strong>Код:</strong> <span id="code-text">NN2025-TOUR</span></p>
-      <button id="copy-button">Скопировать код</button>
+    <div class="buttons">
+      <button id="reset-button">Сбросить</button>
     </div>
 
-    <div id="description-block" class="hidden"></div>
+    <canvas id="confetti-canvas"></canvas>
   </div>
-
-  <canvas id="confetti-canvas"></canvas>
   <script src="script.js"></script>
 </body>
 </html>

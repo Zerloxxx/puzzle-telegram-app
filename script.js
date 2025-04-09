@@ -1,161 +1,270 @@
-const images = ["secret1.jpg", "secret2.jpg", "secret3.jpg"];
-const codes = ["NN2025-TOUR", "ZURA-SECRET-2", "NN-LEGEND-3"];
-const descriptions = [
-  "На этом изображении — загадочные жмурки, символ детства и тайных воспоминаний.",
-  "Дом жмурки — место силы, которое хранит секреты старого района.",
-  "Громозека — таинственное создание из другого измерения!"
-];
+window.Telegram.WebApp?.ready();
 
-let currentPuzzle = 0;
+const board = document.getElementById('puzzle-board');
+const piecesContainer = document.getElementById('pieces-container');
+const resetButton = document.getElementById('reset-button');
+const puzzleButtons = document.querySelectorAll('.puzzle-btn');
+const descriptionBlock = document.getElementById('description-block');
+const confettiCanvas = document.getElementById('confetti-canvas');
+
+const size = 5;
+const pieceSize = 100;
+
 let pieces = [];
-let board = [];
-let boardElement = document.getElementById("game-board");
-let piecesContainer = document.getElementById("pieces-container");
-let codeContainer = document.getElementById("code-container");
-let codeText = document.getElementById("code-text");
-let descriptionBlock = document.getElementById("description-block");
+let currentPuzzle = 1;
+let codeShown = false;
 
-function createBoard() {
-  boardElement.innerHTML = "";
-  board = [];
-  for (let i = 0; i < 25; i++) {
-    const cell = document.createElement("div");
-    boardElement.appendChild(cell);
-    board.push(null);
+const puzzles = {
+  1: {
+    image: 'secret1.jpg',
+    code: 'NN2025-TOUR',
+    description: 'Описание для пазла "Жмурки". Ты можешь сюда вписать любой текст о месте.',
+  },
+  2: {
+    image: 'secret2.jpg',
+    code: 'CHIPDALE-42',
+    description: 'Это место украшено артом с Чипом и Дейлом — популярная городская стена.',
+  },
+  3: {
+    image: 'secret3.jpg',
+    code: 'TOUR-LEVEL-3',
+    description: 'Описание третьего места. Здесь может быть интересный факт, историческая справка или рекомендация для туриста.',
   }
-}
+};
 
-function shuffleArray(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
+puzzleButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentPuzzle = parseInt(btn.dataset.id);
+    init();
+  });
+});
 
-function createPieces() {
-  piecesContainer.innerHTML = "";
+function init() {
+  board.innerHTML = '';
+  piecesContainer.innerHTML = '';
   pieces = [];
+  codeShown = false;
+  removeCopyButton();
+  stopConfetti();
+  descriptionBlock.classList.add('hidden');
+  piecesContainer.classList.remove('hidden');
 
-  for (let i = 0; i < 25; i++) {
-    const row = Math.floor(i / 5);
-    const col = i % 5;
-    const piece = document.createElement("div");
-    piece.classList.add("piece");
-    piece.style.backgroundImage = `url(${images[currentPuzzle]})`;
-    piece.style.backgroundPosition = `-${col * 60}px -${row * 60}px`;
-    piece.draggable = true;
-    piece.dataset.index = i;
-
-    piece.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", piece.dataset.index);
-    });
-
-    pieces.push(piece);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.style.left = `${x * pieceSize}px`;
+      cell.style.top = `${y * pieceSize}px`;
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+      board.appendChild(cell);
+    }
   }
 
-  shuffleArray(pieces).forEach((p) => piecesContainer.appendChild(p));
-}
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const piece = document.createElement('div');
+      piece.classList.add('piece');
+      piece.style.backgroundImage = `url('${puzzles[currentPuzzle].image}')`;
+      piece.style.backgroundSize = `${pieceSize * size}px ${pieceSize * size}px`;
+      piece.style.backgroundPosition = `-${x * pieceSize}px -${y * pieceSize}px`;
+      piece.dataset.correctX = x;
+      piece.dataset.correctY = y;
+      pieces.push(piece);
+    }
+  }
 
-function setupDropEvents() {
-  const cells = boardElement.querySelectorAll("div");
-  cells.forEach((cell, idx) => {
-    cell.addEventListener("dragover", (e) => e.preventDefault());
-    cell.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const pieceIndex = e.dataTransfer.getData("text/plain");
-      const piece = pieces.find((p) => p.dataset.index == pieceIndex);
-      if (cell.firstChild) return;
-      cell.appendChild(piece);
-      board[idx] = parseInt(pieceIndex);
-
-      checkWin();
-    });
+  shuffleArray(pieces);
+  pieces.forEach(piece => {
+    piecesContainer.appendChild(piece);
+    enableDrag(piece);
   });
 }
 
-function checkWin() {
-  if (board.every((val, idx) => val === idx)) {
-    codeContainer.classList.remove("hidden");
-    codeText.textContent = codes[currentPuzzle];
-    descriptionBlock.classList.remove("hidden");
-    descriptionBlock.textContent = descriptions[currentPuzzle];
-    launchConfetti();
-    if (window.Telegram?.WebApp?.sendData) {
-      Telegram.WebApp.sendData(codes[currentPuzzle]);
-    }
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
 
-function resetGame() {
-  codeContainer.classList.add("hidden");
-  descriptionBlock.classList.add("hidden");
-  createBoard();
-  createPieces();
-  setupDropEvents();
+function enableDrag(piece) {
+  let offsetX, offsetY;
+
+  piece.addEventListener('mousedown', (e) => {
+    offsetX = e.offsetX;
+    offsetY = e.offsetY;
+
+    piece.style.zIndex = 3;
+    piece.style.position = 'absolute';
+    document.body.appendChild(piece);
+
+    moveAt(e.pageX, e.pageY);
+
+    function moveAt(pageX, pageY) {
+      piece.style.left = pageX - offsetX + 'px';
+      piece.style.top = pageY - offsetY + 'px';
+    }
+
+    const onMouseMove = (e) => moveAt(e.pageX, e.pageY);
+    const onMouseUp = (e) => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+      const boardRect = board.getBoundingClientRect();
+      const x = Math.floor((e.pageX - boardRect.left) / pieceSize);
+      const y = Math.floor((e.pageY - boardRect.top) / pieceSize);
+
+      const occupied = Array.from(board.children).some(el => {
+        return (
+          el.classList.contains('piece') &&
+          parseInt(el.style.left) === x * pieceSize &&
+          parseInt(el.style.top) === y * pieceSize
+        );
+      });
+
+      if (x >= 0 && x < size && y >= 0 && y < size && !occupied) {
+        piece.style.left = `${x * pieceSize}px`;
+        piece.style.top = `${y * pieceSize}px`;
+        board.appendChild(piece);
+        piece.style.position = 'absolute';
+        piece.dataset.currentX = x;
+        piece.dataset.currentY = y;
+        checkWin();
+      } else {
+        returnToPool(piece);
+      }
+
+      piece.style.zIndex = 2;
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
 }
 
-function loadPuzzle(index) {
-  currentPuzzle = index;
-  resetGame();
+function returnToPool(piece) {
+  piece.style.position = 'static';
+  piece.style.left = 'unset';
+  piece.style.top = 'unset';
+  piecesContainer.appendChild(piece);
+  delete piece.dataset.currentX;
+  delete piece.dataset.currentY;
 }
 
-document.getElementById("reset-button").addEventListener("click", resetGame);
-document.getElementById("copy-button").addEventListener("click", () => {
-  navigator.clipboard.writeText(codeText.textContent);
-});
+function checkWin() {
+  const placed = board.querySelectorAll('.piece');
+  if (placed.length !== size * size) return;
+
+  let correct = true;
+  placed.forEach(p => {
+    if (p.dataset.currentX !== p.dataset.correctX || p.dataset.currentY !== p.dataset.correctY) {
+      correct = false;
+    }
+  });
+
+  if (correct && !codeShown) {
+    showWinCode();
+    codeShown = true;
+  }
+}
+
+function showWinCode() {
+  const codeBlock = document.createElement('div');
+  codeBlock.id = 'win-code';
+  codeBlock.textContent = `Код: ${puzzles[currentPuzzle].code}`;
+  document.querySelector('.buttons').appendChild(codeBlock);
+
+  const copyBtn = document.createElement('button');
+  copyBtn.textContent = 'Скопировать код';
+  copyBtn.style.marginLeft = '10px';
+  copyBtn.style.padding = '8px 14px';
+  copyBtn.style.borderRadius = '6px';
+  copyBtn.style.background = '#1976d2';
+  copyBtn.style.color = 'white';
+  copyBtn.style.border = 'none';
+  copyBtn.style.cursor = 'pointer';
+
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(puzzles[currentPuzzle].code);
+    copyBtn.textContent = 'Скопировано!';
+  };
+
+  document.querySelector('.buttons').appendChild(copyBtn);
+
+  // 🟢 Отправка кода в Telegram
+  if (window.Telegram.WebApp) {
+    window.Telegram.WebApp.sendData(puzzles[currentPuzzle].code);
+  }
+
+  // 👀 Описание и салют
+  descriptionBlock.textContent = puzzles[currentPuzzle].description;
+  piecesContainer.classList.add('hidden');
+  descriptionBlock.classList.remove('hidden');
+  launchConfetti();
+}
+
+function removeCopyButton() {
+  const code = document.getElementById('win-code');
+  if (code) code.remove();
+  const btns = document.querySelectorAll('button');
+  btns.forEach(btn => {
+    if (btn.textContent === 'Скопировать код' || btn.textContent === 'Скопировано!') {
+      btn.remove();
+    }
+  });
+}
+
+resetButton.addEventListener('click', init);
 
 function launchConfetti() {
-  const canvas = document.getElementById("confetti-canvas");
-  const ctx = canvas.getContext("2d");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  let confetti = Array.from({ length: 150 }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height - canvas.height,
-    r: Math.random() * 6 + 2,
-    d: Math.random() * 100,
-    color: `hsl(${Math.random() * 360}, 100%, 60%)`,
-    tilt: Math.random() * 10 - 10,
-    tiltAngleIncremental: Math.random() * 0.1 + 0.05,
-    tiltAngle: 0
-  }));
+  const ctx = confettiCanvas.getContext('2d');
+  const w = confettiCanvas.width = window.innerWidth;
+  const h = confettiCanvas.height = window.innerHeight;
+  let particles = [];
 
+  for (let i = 0; i < 150; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h - h,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * 100,
+      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+      tilt: Math.random() * 10 - 10
+    });
+  }
+
+  let angle = 0;
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    confetti.forEach((c) => {
+    ctx.clearRect(0, 0, w, h);
+    angle += 0.01;
+    for (let i = 0; i < particles.length; i++) {
+      let p = particles[i];
+      p.y += Math.cos(angle + p.d) + 2;
+      p.x += Math.sin(angle) * 2;
       ctx.beginPath();
-      ctx.lineWidth = c.r;
-      ctx.strokeStyle = c.color;
-      ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
-      ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
-      ctx.stroke();
-    });
-    update();
+      ctx.fillStyle = p.color;
+      ctx.ellipse(p.x, p.y, p.r, p.r / 2, p.tilt, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  function update() {
-    confetti.forEach((c, i) => {
-      c.tiltAngle += c.tiltAngleIncremental;
-      c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
-      c.tilt = Math.sin(c.tiltAngle) * 15;
+  const interval = setInterval(draw, 16);
+  confettiCanvas.dataset.active = 'true';
 
-      if (c.y > canvas.height) {
-        confetti[i] = {
-          x: Math.random() * canvas.width,
-          y: -20,
-          r: c.r,
-          d: c.d,
-          color: c.color,
-          tilt: c.tilt,
-          tiltAngleIncremental: c.tiltAngleIncremental,
-          tiltAngle: c.tiltAngle
-        };
-      }
-    });
-  }
-
-  (function animate() {
-    draw();
-    requestAnimationFrame(animate);
-  })();
+  setTimeout(() => {
+    clearInterval(interval);
+    ctx.clearRect(0, 0, w, h);
+    confettiCanvas.dataset.active = 'false';
+  }, 3000);
 }
 
-// Старт
-resetGame();
+function stopConfetti() {
+  if (confettiCanvas.dataset.active === 'true') {
+    const ctx = confettiCanvas.getContext('2d');
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiCanvas.dataset.active = 'false';
+  }
+}
+
+init();
