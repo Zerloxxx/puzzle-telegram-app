@@ -4,6 +4,7 @@ let pieceSize = 60;
 let boardSize = 5;
 let totalPieces = boardSize * boardSize;
 let correctCount = 0;
+let puzzlePieces = [];
 
 function createBoard() {
   const board = document.getElementById("board");
@@ -32,48 +33,68 @@ function resetPuzzle() {
   correctCount = 0;
   document.getElementById("code-block").classList.add("hidden");
   createBoard();
+  const piecesContainer = document.getElementById("pieces");
+  piecesContainer.innerHTML = "";
 
-  const pieces = document.getElementById("pieces");
-  pieces.innerHTML = "";
+  const img = new Image();
+  img.src = puzzles[currentPuzzle];
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = img.width;
+    canvas.height = img.height;
 
-  const coords = [];
-  for (let i = 0; i < totalPieces; i++) {
-    const x = (i % boardSize) * pieceSize;
-    const y = Math.floor(i / boardSize) * pieceSize;
-    coords.push({ index: i, x, y });
-  }
+    ctx.drawImage(img, 0, 0);
 
-  shuffle(coords);
+    const pieceWidth = img.width / boardSize;
+    const pieceHeight = img.height / boardSize;
+    puzzlePieces = [];
 
-  for (let i = 0; i < totalPieces; i++) {
-    const { index, x, y } = coords[i];
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
+        const pieceCanvas = document.createElement("canvas");
+        pieceCanvas.width = pieceSize;
+        pieceCanvas.height = pieceSize;
+        const pieceCtx = pieceCanvas.getContext("2d");
+        pieceCtx.drawImage(
+          img,
+          j * pieceWidth,
+          i * pieceHeight,
+          pieceWidth,
+          pieceHeight,
+          0,
+          0,
+          pieceSize,
+          pieceSize
+        );
+        const pieceData = pieceCanvas.toDataURL();
+        puzzlePieces.push({ data: pieceData, index: i * boardSize + j });
+      }
+    }
 
-    const piece = document.createElement("img");
-    piece.src = puzzles[currentPuzzle];
-    piece.classList.add("piece");
-    piece.draggable = true;
-    piece.dataset.index = index;
+    shuffle(puzzlePieces);
 
-    piece.style.objectPosition = `-${x}px -${y}px`;
-    piece.style.objectFit = "none";
-    piece.style.width = `${pieceSize}px`;
-    piece.style.height = `${pieceSize}px`;
+    for (let piece of puzzlePieces) {
+      const imgElem = document.createElement("img");
+      imgElem.src = piece.data;
+      imgElem.classList.add("piece");
+      imgElem.draggable = true;
+      imgElem.dataset.index = piece.index;
+      imgElem.addEventListener("dragstart", dragStart);
+      piecesContainer.appendChild(imgElem);
+    }
 
-    piece.addEventListener("dragstart", dragStart);
-    pieces.appendChild(piece);
-  }
-
-  document.querySelectorAll(".cell").forEach((cell) => {
-    cell.innerHTML = "";
-    cell.addEventListener("dragover", dragOver);
-    cell.addEventListener("drop", drop);
-  });
+    document.querySelectorAll(".cell").forEach((cell) => {
+      cell.innerHTML = "";
+      cell.addEventListener("dragover", dragOver);
+      cell.addEventListener("drop", drop);
+    });
+  };
 }
 
 function dragStart(event) {
   event.dataTransfer.setData("index", event.target.dataset.index);
   event.dataTransfer.setData("src", event.target.src);
-  event.dataTransfer.setData("pos", event.target.style.objectPosition);
 }
 
 function dragOver(event) {
@@ -85,17 +106,13 @@ function drop(event) {
   const droppedIndex = parseInt(event.currentTarget.dataset.index);
   const pieceIndex = parseInt(event.dataTransfer.getData("index"));
   const src = event.dataTransfer.getData("src");
-  const pos = event.dataTransfer.getData("pos");
 
   if (event.currentTarget.children.length > 0) return;
 
   const piece = document.createElement("img");
   piece.src = src;
   piece.classList.add("piece");
-  piece.style.objectPosition = pos;
-  piece.style.objectFit = "none";
-  piece.style.width = `${pieceSize}px`;
-  piece.style.height = `${pieceSize}px`;
+  piece.draggable = false;
 
   event.currentTarget.appendChild(piece);
 
@@ -117,6 +134,4 @@ function copyCode() {
 
 window.onload = () => {
   loadPuzzle(0);
-};
-
 };
