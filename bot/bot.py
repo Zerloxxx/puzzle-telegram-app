@@ -11,7 +11,7 @@ dp = Dispatcher(bot)
 main_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 main_kb.add(KeyboardButton(
     text="🧩 Играть в пазл",
-    web_app=WebAppInfo(url="https://zerloxxx.github.io/puzzle-telegram-app/")
+    web_app=WebAppInfo(url="https://zerloxxx.github.io/puzzle-telegram-app/?v=999")
 ))
 
 # 🔁 Команда /start

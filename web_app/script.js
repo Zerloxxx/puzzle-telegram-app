@@ -8,6 +8,7 @@ let puzzlePieces = [];
 
 function createBoard() {
   const board = document.getElementById("board");
+  if (!board) return;
   board.innerHTML = "";
   for (let i = 0; i < totalPieces; i++) {
     const cell = document.createElement("div");
@@ -31,10 +32,17 @@ function loadPuzzle(index) {
 
 function resetPuzzle() {
   correctCount = 0;
-  document.getElementById("code-block").classList.add("hidden");
-  document.getElementById("description").classList.add("hidden");
+
+  const codeBlock = document.getElementById("code-block");
+  const description = document.getElementById("description");
+
+  if (codeBlock) codeBlock.classList.add("hidden");
+  if (description) description.classList.add("hidden");
+
   createBoard();
+
   const piecesContainer = document.getElementById("pieces");
+  if (!piecesContainer) return;
   piecesContainer.innerHTML = "";
 
   const img = new Image();
@@ -86,7 +94,8 @@ function resetPuzzle() {
       piecesContainer.appendChild(imgElem);
     }
 
-    document.querySelectorAll(".cell").forEach((cell) => {
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach((cell) => {
       cell.innerHTML = "";
       cell.addEventListener("dragover", dragOver);
       cell.addEventListener("drop", drop);
@@ -109,13 +118,14 @@ function drop(event) {
   const pieceIndex = parseInt(event.dataTransfer.getData("index"));
   const src = event.dataTransfer.getData("src");
 
-  if (event.currentTarget.children.length > 0) return;
+  event.currentTarget.innerHTML = "";
 
   const piece = document.createElement("img");
   piece.src = src;
   piece.classList.add("piece");
-  piece.draggable = false;
-
+  piece.draggable = true;
+  piece.dataset.index = pieceIndex;
+  piece.addEventListener("dragstart", dragStart);
   event.currentTarget.appendChild(piece);
 
   if (droppedIndex === pieceIndex) {
@@ -123,22 +133,27 @@ function drop(event) {
   }
 
   if (correctCount === totalPieces) {
-    document.getElementById("code-block").classList.remove("hidden");
+    const codeBlock = document.getElementById("code-block");
+    const description = document.getElementById("description");
+    const placeText = document.getElementById("place-description");
 
-    const descriptions = [
-      "Жмурки — одно из самых атмосферных мест с захватывающим видом на Волгу.",
-      "Пазл 2 — это историческая улица с купеческими домами и уютными дворами.",
-      "Пазл 3 — знаменитая смотровая площадка с панорамой на Нижний Новгород."
-    ];
-    document.getElementById("description").classList.remove("hidden");
-    document.getElementById("place-description").innerText = descriptions[currentPuzzle];
+    if (codeBlock) codeBlock.classList.remove("hidden");
+    if (description) description.classList.remove("hidden");
+    if (placeText) {
+      const descriptions = [
+        "Жмурки — одно из самых атмосферных мест с захватывающим видом на Волгу.",
+        "Пазл 2 — это историческая улица с купеческими домами и уютными дворами.",
+        "Пазл 3 — знаменитая смотровая площадка с панорамой на Нижний Новгород.",
+      ];
+      placeText.innerText = descriptions[currentPuzzle];
+    }
 
     showFireworks();
   }
 }
 
 function copyCode() {
-  const code = document.getElementById("puzzle-code").innerText;
+  const code = document.getElementById("puzzle-code")?.innerText || "NN2025-TOUR";
   navigator.clipboard.writeText(code).then(() => {
     alert("Код скопирован!");
   });
@@ -164,7 +179,7 @@ function showFireworks() {
       explosion: 5,
       intensity: 30,
       flickering: 50,
-      lineStyle: 'round',
+      lineStyle: "round",
       hue: { min: 0, max: 360 },
       delay: { min: 15, max: 30 },
       rocketsPoint: { min: 0, max: 100 },
