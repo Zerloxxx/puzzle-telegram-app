@@ -1,0 +1,77 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f2f8ff;
+  color: #1a237e;
+}
+
+.container {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #1a237e;
+}
+
+.puzzle-buttons {
+  margin-bottom: 10px;
+}
+
+button {
+  margin: 5px;
+  padding: 8px 16px;
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1976d2;
+}
+
+#board {
+  margin: 0 auto 20px;
+  width: 300px;
+  height: 300px;
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  grid-template-rows: repeat(5, 60px);
+  gap: 2px;
+  background: #e3f2fd;
+  border: 2px dashed #90caf9;
+  justify-content: center;
+}
+
+.cell {
+  width: 60px;
+  height: 60px;
+  outline: 1px dashed #64b5f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+#pieces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.piece {
+  width: 60px;
+  height: 60px;
+  cursor: grab;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.hidden {
+  display: none;
+}
