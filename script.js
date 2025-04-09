@@ -1,3 +1,5 @@
+window.Telegram.WebApp?.ready();
+
 const board = document.getElementById('puzzle-board');
 const piecesContainer = document.getElementById('pieces-container');
 const resetButton = document.getElementById('reset-button');
@@ -47,7 +49,6 @@ function init() {
   descriptionBlock.classList.add('hidden');
   piecesContainer.classList.remove('hidden');
 
-  // Ячейки
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const cell = document.createElement('div');
@@ -60,7 +61,6 @@ function init() {
     }
   }
 
-  // Пазлы
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const piece = document.createElement('div');
@@ -192,12 +192,15 @@ function showWinCode() {
 
   document.querySelector('.buttons').appendChild(copyBtn);
 
-  // Показываем описание
+  // 🟢 Отправка кода в Telegram
+  if (window.Telegram.WebApp) {
+    window.Telegram.WebApp.sendData(puzzles[currentPuzzle].code);
+  }
+
+  // 👀 Описание и салют
   descriptionBlock.textContent = puzzles[currentPuzzle].description;
   piecesContainer.classList.add('hidden');
   descriptionBlock.classList.remove('hidden');
-
-  // Салют
   launchConfetti();
 }
 
@@ -214,7 +217,6 @@ function removeCopyButton() {
 
 resetButton.addEventListener('click', init);
 
-// 🎆 Минималистичная анимация салюта
 function launchConfetti() {
   const ctx = confettiCanvas.getContext('2d');
   const w = confettiCanvas.width = window.innerWidth;
@@ -266,3 +268,4 @@ function stopConfetti() {
 }
 
 init();
+

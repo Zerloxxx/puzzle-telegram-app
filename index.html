@@ -2,34 +2,38 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Пазл-игра</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Пазл</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Собери пазл!</h1>
+  <div class="app-container">
+    <h1 class="title">Собери пазл!</h1>
 
-    <div class="puzzle-switcher">
-      <button class="puzzle-btn" data-id="1">Жмурки</button>
-      <button class="puzzle-btn" data-id="2">Дом жмурки</button>
-      <button class="puzzle-btn" data-id="3">Громозека</button>
+    <div class="tabs-scroll" id="puzzleTabs">
+      <!-- Кнопки будут создаваться динамически -->
     </div>
 
-    <div class="game">
-      <div id="puzzle-board" class="board"></div>
-      <div id="right-panel">
-        <div id="pieces-container" class="pieces"></div>
-        <div id="description-block" class="hidden"></div>
+    <div class="game-area">
+      <div id="puzzle-grid"></div>
+      <div id="pieces-scroll" class="scrollable-pieces"></div>
+    </div>
+
+    <div class="controls">
+      <button id="reset-btn">Сбросить</button>
+
+      <div id="code-block" class="hidden">
+        <p>Код: <b id="code-text"></b></p>
+        <button id="copy-btn">Скопировать</button>
       </div>
     </div>
 
-    <div class="buttons">
-      <button id="reset-button">Сбросить</button>
-    </div>
-
     <canvas id="confetti-canvas"></canvas>
+    <div id="description-block" class="hidden">
+      <p id="description-text"></p>
+    </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
