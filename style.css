@@ -39,17 +39,22 @@ button:hover {
   width: 300px;
   height: 300px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 60px);
+  grid-template-rows: repeat(5, 60px);
   gap: 2px;
   background: #e3f2fd;
   border: 2px dashed #90caf9;
+  justify-content: center;
 }
 
 .cell {
   width: 60px;
   height: 60px;
-  border: 1px dashed #64b5f6;
+  outline: 1px dashed #64b5f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
 }
 
 #pieces {
@@ -64,9 +69,9 @@ button:hover {
   height: 60px;
   cursor: grab;
   border-radius: 4px;
+  background: #fff;
 }
 
 .hidden {
   display: none;
 }
-

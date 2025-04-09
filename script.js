@@ -36,18 +36,23 @@ function resetPuzzle() {
   const pieces = document.getElementById("pieces");
   pieces.innerHTML = "";
 
-  const positions = Array.from({ length: totalPieces }, (_, i) => i);
-  shuffle(positions);
+  const coords = [];
+  for (let i = 0; i < totalPieces; i++) {
+    const x = (i % boardSize) * pieceSize;
+    const y = Math.floor(i / boardSize) * pieceSize;
+    coords.push({ index: i, x, y });
+  }
+
+  shuffle(coords);
 
   for (let i = 0; i < totalPieces; i++) {
+    const { index, x, y } = coords[i];
+
     const piece = document.createElement("img");
     piece.src = puzzles[currentPuzzle];
     piece.classList.add("piece");
     piece.draggable = true;
-    piece.dataset.index = i;
-
-    const x = (i % boardSize) * pieceSize;
-    const y = Math.floor(i / boardSize) * pieceSize;
+    piece.dataset.index = index;
 
     piece.style.objectPosition = `-${x}px -${y}px`;
     piece.style.objectFit = "none";
@@ -59,6 +64,7 @@ function resetPuzzle() {
   }
 
   document.querySelectorAll(".cell").forEach((cell) => {
+    cell.innerHTML = "";
     cell.addEventListener("dragover", dragOver);
     cell.addEventListener("drop", drop);
   });
@@ -111,4 +117,6 @@ function copyCode() {
 
 window.onload = () => {
   loadPuzzle(0);
+};
+
 };
