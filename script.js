@@ -39,15 +39,17 @@ function resetPuzzle() {
   const img = new Image();
   img.src = puzzles[currentPuzzle];
   img.onload = () => {
+    // Масштабируем под поле
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = pieceSize * boardSize;  // 300
+    canvas.height = pieceSize * boardSize; // 300
 
-    ctx.drawImage(img, 0, 0);
+    // Вписываем изображение в поле
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    const pieceWidth = img.width / boardSize;
-    const pieceHeight = img.height / boardSize;
+    const pieceWidth = canvas.width / boardSize;
+    const pieceHeight = canvas.height / boardSize;
     puzzlePieces = [];
 
     for (let i = 0; i < boardSize; i++) {
@@ -56,8 +58,9 @@ function resetPuzzle() {
         pieceCanvas.width = pieceSize;
         pieceCanvas.height = pieceSize;
         const pieceCtx = pieceCanvas.getContext("2d");
+
         pieceCtx.drawImage(
-          img,
+          canvas,
           j * pieceWidth,
           i * pieceHeight,
           pieceWidth,
@@ -67,6 +70,7 @@ function resetPuzzle() {
           pieceSize,
           pieceSize
         );
+
         const pieceData = pieceCanvas.toDataURL();
         puzzlePieces.push({ data: pieceData, index: i * boardSize + j });
       }
