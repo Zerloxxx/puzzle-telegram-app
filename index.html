@@ -3,37 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Пазл</title>
+  <title>Собери пазл!</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-container">
+  <div class="container">
     <h1 class="title">Собери пазл!</h1>
 
-    <div class="tabs-scroll" id="puzzleTabs">
-      <!-- Кнопки будут создаваться динамически -->
-    </div>
+    <div id="puzzle-buttons" class="button-row"></div>
 
     <div class="game-area">
-      <div id="puzzle-grid"></div>
-      <div id="pieces-scroll" class="scrollable-pieces"></div>
+      <div id="puzzle-grid" class="grid"></div>
+      <div id="tile-container" class="tile-bank"></div>
     </div>
 
-    <div class="controls">
-      <button id="reset-btn">Сбросить</button>
+    <div id="code-block" class="hidden">
+      <strong>Код: <span>NN2025-TOUR</span></strong>
+    </div>
+    <button id="copy-button" class="copy-button hidden">Скопировать код</button>
 
-      <div id="code-block" class="hidden">
-        <p>Код: <b id="code-text"></b></p>
-        <button id="copy-btn">Скопировать</button>
-      </div>
+    <div id="description-block" class="description hidden">
+      <p>Здесь ты можешь указать описание места, к которому относится пазл.</p>
     </div>
 
+    <button id="reset-button" class="reset-button">Сбросить</button>
     <canvas id="confetti-canvas"></canvas>
-    <div id="description-block" class="hidden">
-      <p id="description-text"></p>
-    </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
