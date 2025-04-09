@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Пазл-игра</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Собери пазл!</h1>
+
+    <div class="puzzle-switcher">
+      <button class="puzzle-btn" data-id="1">Жмурки</button>
+      <button class="puzzle-btn" data-id="2">Дом жмурки</button>
+      <button class="puzzle-btn" data-id="3">Громозека</button>
+    </div>
+
+    <div class="game">
+      <div id="puzzle-board" class="board"></div>
+      <div id="right-panel">
+        <div id="pieces-container" class="pieces"></div>
+        <div id="description-block" class="hidden"></div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="reset-button">Сбросить</button>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
